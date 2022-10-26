@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package events;
+
+option go_package = "./pb";
+
+service Events {
+  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse) {}
+}
+
+message GetEventsRequest {
+  string message = 1;
+}
+
+message GetEventsResponse {
+  int64 status = 1;
+  string error = 2;
+  string events = 3;
+}
