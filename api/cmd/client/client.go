@@ -18,10 +18,10 @@ func main() {
 
 	client := pb.NewEventsClient(conn)
 
-	resp, err := client.GetEvents(context.TODO(), &pb.GetEventsRequest{Message: "Hello there"})
+	resp, err := client.FindOne(context.TODO(), &pb.FindOneRequest{Id: "kjlansckjasjd"})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(resp.Events)
+	fmt.Println(resp.Event)
 }

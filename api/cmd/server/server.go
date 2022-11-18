@@ -10,16 +10,28 @@ import (
 )
 
 type server struct {
-	pb.UnsafeEventsServer
+	pb.UnimplementedEventsServer
 }
 
-func (s *server) GetEvents(ctx context.Context, in *pb.GetEventsRequest) (*pb.GetEventsResponse, error) {
-	fmt.Println("Received request with message:", in.Message)
+func (s *server) FindOne(ctx context.Context, in *pb.FindOneRequest) (*pb.FindOneResponse, error) {
+	fmt.Println("Looking for event with ID:", in.Id)
 
-	return &pb.GetEventsResponse{
+	return &pb.FindOneResponse{
 		Status: 200,
-		Error:  "",
-		Events: "first event, second event, even third event",
+		Event: &pb.Event{
+			Id:          in.Id,
+			Title:       "Example event",
+			Date:        "2022",
+			Description: "Description here...",
+			Tags:        []string{"epic", "dev"},
+			Category:    "dev10983mkf-D",
+			Price:       &pb.Price{},
+			Location: &pb.Location{
+				Address:  "Some Street",
+				City:     "Example City",
+				Postcode: "4029",
+			},
+		},
 	}, nil
 }
 
