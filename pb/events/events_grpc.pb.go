@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type EventsClient interface {
 	FindOne(ctx context.Context, in *FindOneRequest, opts ...grpc.CallOption) (*FindOneResponse, error)
 	FindMany(ctx context.Context, in *FindManyRequest, opts ...grpc.CallOption) (*FindManyResponse, error)
+	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
 }
 
 type eventsClient struct {
@@ -52,12 +53,22 @@ func (c *eventsClient) FindMany(ctx context.Context, in *FindManyRequest, opts .
 	return out, nil
 }
 
+func (c *eventsClient) Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error) {
+	out := new(AddResponse)
+	err := c.cc.Invoke(ctx, "/events.Events/Add", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventsServer is the server API for Events service.
 // All implementations must embed UnimplementedEventsServer
 // for forward compatibility
 type EventsServer interface {
 	FindOne(context.Context, *FindOneRequest) (*FindOneResponse, error)
 	FindMany(context.Context, *FindManyRequest) (*FindManyResponse, error)
+	Add(context.Context, *AddRequest) (*AddResponse, error)
 	mustEmbedUnimplementedEventsServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedEventsServer) FindOne(context.Context, *FindOneRequest) (*Fin
 }
 func (UnimplementedEventsServer) FindMany(context.Context, *FindManyRequest) (*FindManyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMany not implemented")
+}
+func (UnimplementedEventsServer) Add(context.Context, *AddRequest) (*AddResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
 func (UnimplementedEventsServer) mustEmbedUnimplementedEventsServer() {}
 
@@ -120,6 +134,24 @@ func _Events_FindMany_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Events_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventsServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/events.Events/Add",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventsServer).Add(ctx, req.(*AddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Events_ServiceDesc is the grpc.ServiceDesc for Events service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Events_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindMany",
 			Handler:    _Events_FindMany_Handler,
+		},
+		{
+			MethodName: "Add",
+			Handler:    _Events_Add_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
