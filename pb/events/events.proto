@@ -46,9 +46,11 @@ message FindOneResponse {
 
 // Find Many
 message FindManyRequest {
-  optional string category = 1;
-  optional string city = 2;
-  optional Price price = 3;
+  repeated string categories = 1;
+  repeated string cities = 2;
+  repeated string tags = 3;
+  optional double priceFrom = 4;
+  optional double priceTo = 5;
 }
 
 message FindManyResponse {

@@ -24,4 +24,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.41.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	gopkg.in/validator.v2 v2.0.1 // indirect
 )

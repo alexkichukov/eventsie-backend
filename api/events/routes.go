@@ -7,4 +7,5 @@ func RegisterRoutes(app *fiber.App) {
 
 	app.Get("/events", svc.GetAllEvents)
 	app.Get("/events/:id", svc.GetEventByID)
+	app.Post("/new-event", svc.CreateEvent)
 }

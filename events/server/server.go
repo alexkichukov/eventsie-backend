@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/kamva/mgm/v3"
+	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -16,6 +17,7 @@ type Server struct {
 
 func (s *Server) FindOne(ctx context.Context, in *pb.FindOneRequest) (*pb.FindOneResponse, error) {
 	event := &models.Event{}
+
 	if err := mgm.Coll(event).FindByID(in.Id, event); err != nil {
 		return &pb.FindOneResponse{
 			Status: http.StatusInternalServerError,
@@ -34,22 +36,24 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 
 	filter := bson.M{}
 
-	if in.Category != nil {
-		filter["category"] = in.Category
+	if in.Categories != nil {
+		filter["category"] = bson.M{operator.In: in.Categories}
 	}
-
-	// TODO: Figure out why greater than and less than operators dont work here
-	// if in.Price != nil && (in.Price.From > 0 || in.Price.To > 0) {
-	// 	filter["price"] = bson.M{}
-	// }
-	// if in.Price != nil {
-	// 	if in.Price.From > 0 {
-	// 		filter["price"].(bson.M)["from"] = bson.M{operator.Gte: in.Price.From}
-	// 	}
-	// 	if in.Price.To > 0 {
-	// 		filter["price"].(bson.M)["to"] = bson.M{operator.Lte: in.Price.To}
-	// 	}
-	// }
+	if in.Cities != nil {
+		filter["location.city"] = bson.M{operator.In: in.Cities}
+	}
+	if in.Tags != nil {
+		filter["tags"] = bson.M{operator.In: in.Tags}
+	}
+	if in.PriceFrom != nil || in.PriceTo != nil {
+		filter["price.from"] = bson.M{}
+	}
+	if in.PriceFrom != nil {
+		filter["price.from"].(bson.M)[operator.Gte] = *in.PriceFrom
+	}
+	if in.PriceTo != nil {
+		filter["price.from"].(bson.M)[operator.Lte] = *in.PriceTo
+	}
 
 	if err := mgm.Coll(&models.Event{}).SimpleFind(&events, filter); err != nil {
 		return &pb.FindManyResponse{
@@ -66,6 +70,7 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 
 func (s *Server) Add(ctx context.Context, in *pb.AddRequest) (*pb.AddResponse, error) {
 	event := models.EventFromProto(in.Event)
+
 	if err := mgm.Coll(event).Create(event); err != nil {
 		return &pb.AddResponse{
 			Status: http.StatusInternalServerError,
