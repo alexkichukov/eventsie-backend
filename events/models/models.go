@@ -1,7 +1,7 @@
 package models
 
 import (
-	pb "events/pb/events"
+	pb "eventsie/pb/events"
 
 	"github.com/kamva/mgm/v3"
 )

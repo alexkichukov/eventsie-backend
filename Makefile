@@ -4,6 +4,7 @@ proto:
 
 build:
 	go build -o ./api/main.exe ./api/cmd/main.go
+	go build -o ./auth/main.exe ./auth/cmd/main.go
 	go build -o ./events/main.exe ./events/cmd/main.go
 
 run-api-gateway:
@@ -12,8 +13,14 @@ run-api-gateway:
 run-events-service:
 	./events/main.exe
 
+run-auth-service:
+	./auth/main.exe
+
 dev-api-gateway:
 	cd ./api && air
 
 dev-events-service:
 	cd ./events && air
+
+dev-auth-service:
+	cd ./auth && air

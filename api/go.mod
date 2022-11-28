@@ -1,4 +1,4 @@
-module events/api
+module eventsie/api
 
 go 1.19
 

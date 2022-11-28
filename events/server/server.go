@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"events/events/models"
-	pb "events/pb/events"
+	"eventsie/events/models"
+	pb "eventsie/pb/events"
 	"net/http"
 
 	"github.com/kamva/mgm/v3"

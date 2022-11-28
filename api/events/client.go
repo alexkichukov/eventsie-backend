@@ -2,9 +2,9 @@ package events
 
 import (
 	"context"
-	"events/api/config"
-	"events/api/models"
-	pb "events/pb/events"
+	"eventsie/api/config"
+	"eventsie/api/models"
+	pb "eventsie/pb/events"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -131,15 +131,11 @@ func (svc *ServiceClient) CreateEvent(c *fiber.Ctx) error {
 	e := &models.CreateEventBody{}
 
 	if err := c.BodyParser(e); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid event data",
-		})
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": "Invalid event data"})
 	}
 
 	if err := validator.Validate(e); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid event data",
-		})
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": "Invalid event data"})
 	}
 
 	event := &pb.Event{
@@ -161,7 +157,5 @@ func (svc *ServiceClient) CreateEvent(c *fiber.Ctx) error {
 
 	svc.Client.Add(context.TODO(), &pb.AddRequest{Event: event})
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"message": "Event created successfully",
-	})
+	return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Event created successfully"})
 }

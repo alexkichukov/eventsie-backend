@@ -1,9 +1,9 @@
 package main
 
 import (
-	"eventsie/events/config"
-	"eventsie/events/server"
-	pb "eventsie/pb/events"
+	"eventsie/auth/config"
+	"eventsie/auth/server"
+	pb "eventsie/pb/auth"
 	"fmt"
 	"net"
 
@@ -22,10 +22,10 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Events gRPC server running at port %d\n", cfg.PORT)
+	fmt.Printf("Auth gRPC server running at port %d\n", cfg.PORT)
 
 	s := grpc.NewServer()
-	pb.RegisterEventsServer(s, &server.Server{})
+	pb.RegisterAuthServer(s, &server.Server{})
 
 	if err := s.Serve(listener); err != nil {
 		panic(err)

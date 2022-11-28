@@ -1,4 +1,4 @@
-module events/pb
+module eventsie/pb
 
 go 1.19
 

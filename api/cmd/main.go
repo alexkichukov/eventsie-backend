@@ -1,8 +1,9 @@
 package main
 
 import (
-	"events/api/config"
-	"events/api/events"
+	"eventsie/api/auth"
+	"eventsie/api/config"
+	"eventsie/api/events"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,6 +15,7 @@ func main() {
 	app := fiber.New()
 
 	events.RegisterRoutes(app)
+	auth.RegisterRoutes(app)
 
 	if err := app.Listen(fmt.Sprintf(":%d", cfg.API_PORT)); err != nil {
 		panic("Error while starting up app.")
