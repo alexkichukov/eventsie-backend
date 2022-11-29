@@ -1,22 +1,57 @@
 package models
 
 type EventPrice struct {
-	From float64 `json:"from" validate:"nonzero"`
+	From float64 `json:"from"`
 	To   float64 `json:"to"`
 }
 
 type EventLocation struct {
-	Address  string `json:"address" validate:"nonzero"`
-	City     string `json:"city" validate:"nonzero"`
-	Postcode string `json:"postcode" validate:"nonzero"`
+	Address  string `json:"address"`
+	City     string `json:"city"`
+	Postcode string `json:"postcode"`
 }
 
 type CreateEventBody struct {
-	Title       string         `json:"title" validate:"nonzero"`
-	Date        string         `json:"date" validate:"nonzero"`
-	Description string         `json:"description" validate:"nonzero"`
-	Tags        []string       `json:"tags" validate:"nonzero"`
-	Category    string         `json:"category" validate:"nonzero"`
-	Location    *EventLocation `json:"location" validate:"nonnil"`
-	Price       *EventPrice    `json:"price" validate:"nonnil"`
+	Title       string         `json:"title"`
+	Date        string         `json:"date"`
+	Description string         `json:"description"`
+	Tags        []string       `json:"tags"`
+	Category    string         `json:"category"`
+	Location    *EventLocation `json:"location"`
+	Price       *EventPrice    `json:"price"`
+}
+
+func (el *EventLocation) GetAddress() string {
+	if el == nil {
+		return ""
+	}
+	return el.Address
+}
+
+func (el *EventLocation) GetCity() string {
+	if el == nil {
+		return ""
+	}
+	return el.City
+}
+
+func (el *EventLocation) GetPostcode() string {
+	if el == nil {
+		return ""
+	}
+	return el.Postcode
+}
+
+func (ep *EventPrice) GetFrom() float64 {
+	if ep == nil {
+		return 0
+	}
+	return ep.From
+}
+
+func (ep *EventPrice) GetTo() float64 {
+	if ep == nil {
+		return 0
+	}
+	return ep.To
 }

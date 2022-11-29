@@ -40,8 +40,9 @@ message FindOneRequest {
 
 message FindOneResponse {
   int32 status = 1;
-  string error = 2;
-  Event event = 3;
+  bool error = 2;
+  string message = 3;
+  Event event = 4;
 }
 
 // Find Many
@@ -55,8 +56,9 @@ message FindManyRequest {
 
 message FindManyResponse {
   int32 status = 1;
-  string error = 2;
-  repeated Event events = 3;
+  bool error = 2;
+  string message = 3;
+  repeated Event events = 4;
 }
 
 message AddRequest {
@@ -65,5 +67,6 @@ message AddRequest {
 
 message AddResponse {
   int32 status = 1;
-  string error = 2;
+  string message = 2;
+  bool error = 3;
 }

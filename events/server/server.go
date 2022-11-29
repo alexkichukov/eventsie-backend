@@ -6,6 +6,7 @@ import (
 	pb "eventsie/pb/events"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/kamva/mgm/v3"
 	"github.com/kamva/mgm/v3/operator"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,8 +21,9 @@ func (s *Server) FindOne(ctx context.Context, in *pb.FindOneRequest) (*pb.FindOn
 
 	if err := mgm.Coll(event).FindByID(in.Id, event); err != nil {
 		return &pb.FindOneResponse{
-			Status: http.StatusInternalServerError,
-			Error:  "Could not query the database.",
+			Status:  http.StatusInternalServerError,
+			Message: "Unexpected error while trying to find event",
+			Error:   true,
 		}, nil
 	}
 
@@ -57,8 +59,9 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 
 	if err := mgm.Coll(&models.Event{}).SimpleFind(&events, filter); err != nil {
 		return &pb.FindManyResponse{
-			Status: http.StatusInternalServerError,
-			Error:  "Could not query the database.",
+			Status:  http.StatusInternalServerError,
+			Message: "Unexpected error while trying to find events",
+			Error:   true,
 		}, nil
 	}
 
@@ -71,14 +74,23 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 func (s *Server) Add(ctx context.Context, in *pb.AddRequest) (*pb.AddResponse, error) {
 	event := models.EventFromProto(in.Event)
 
-	if err := mgm.Coll(event).Create(event); err != nil {
+	// Validate event
+	validate := validator.New()
+	if err := validate.Struct(event); err != nil {
 		return &pb.AddResponse{
-			Status: http.StatusInternalServerError,
-			Error:  "Unexpected error while trying to create an event.",
-		}, err
+			Status:  http.StatusBadRequest,
+			Message: "Invalid event data",
+			Error:   true,
+		}, nil
 	}
 
-	return &pb.AddResponse{
-		Status: http.StatusOK,
-	}, nil
+	if err := mgm.Coll(event).Create(event); err != nil {
+		return &pb.AddResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Unexpected error while trying to create event",
+			Error:   true,
+		}, nil
+	}
+
+	return &pb.AddResponse{Status: http.StatusOK, Message: "Event created successfully"}, nil
 }

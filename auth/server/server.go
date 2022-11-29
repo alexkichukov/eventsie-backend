@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"eventsie/auth/models"
@@ -22,11 +21,11 @@ type Server struct {
 
 func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	user := &models.User{
-		FirstName:       in.FirstName,
-		LastName:        in.LastName,
-		Username:        in.Username,
-		Email:           in.Email,
-		Password:        in.Password,
+		FirstName:       in.GetFirstName(),
+		LastName:        in.GetLastName(),
+		Username:        in.GetUsername(),
+		Email:           in.GetEmail(),
+		Password:        in.GetPassword(),
 		Role:            models.UserRole,
 		FavouriteEvents: []string{},
 	}
@@ -51,8 +50,6 @@ func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regi
 		bson.M{operator.Or: []bson.M{{"username": user.Username}, {"email": user.Email}}},
 		options.Find().SetLimit(1),
 	)
-
-	fmt.Println(existingUser)
 
 	if len(existingUser) > 0 {
 		return &pb.RegisterResponse{Status: http.StatusBadRequest, Error: true, Message: "User already exists"}, nil

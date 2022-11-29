@@ -7,42 +7,42 @@ import (
 )
 
 type EventPrice struct {
-	From float64 `json:"from" bson:"from"`
-	To   float64 `json:"to" bson:"to"`
+	From float64 `json:"from" bson:"from" validate:"required,gte=0"`
+	To   float64 `json:"to" bson:"to" validate:"omitempty,gtfield=From"`
 }
 
 type EventLocation struct {
-	Address  string `json:"address" bson:"address"`
-	City     string `json:"city" bson:"city"`
-	Postcode string `json:"psotcode" bson:"psotcode"`
+	Address  string `json:"address" bson:"address" validate:"required"`
+	City     string `json:"city" bson:"city" validate:"required"`
+	Postcode string `json:"postcode" bson:"postcode" validate:"required"`
 }
 
 type Event struct {
 	mgm.DefaultModel `bson:",inline"`
-	Title            string   `json:"title" bson:"title"`
-	Date             string   `json:"date" bson:"date"`
-	Description      string   `json:"description" bson:"description"`
-	Tags             []string `json:"tags" bson:"tags"`
-	Category         string   `json:"category" bson:"category"`
-	Location         *EventLocation
-	Price            *EventPrice
+	Title            string         `json:"title" bson:"title" validate:"required"`
+	Date             string         `json:"date" bson:"date" validate:"required"`
+	Description      string         `json:"description" bson:"description" validate:"required"`
+	Tags             []string       `json:"tags" bson:"tags" validate:"required,min=1,dive,required,min=2"`
+	Category         string         `json:"category" bson:"category" validate:"required"`
+	Location         *EventLocation `validate:"required"`
+	Price            *EventPrice    `validate:"required"`
 }
 
 func EventFromProto(e *pb.Event) *Event {
 	return &Event{
-		Title:       e.Title,
-		Date:        e.Date,
-		Description: e.Description,
-		Tags:        e.Tags,
-		Category:    e.Category,
+		Title:       e.GetTitle(),
+		Date:        e.GetDate(),
+		Description: e.GetDescription(),
+		Tags:        e.GetTags(),
+		Category:    e.GetCategory(),
 		Location: &EventLocation{
-			Address:  e.Location.Address,
-			City:     e.Location.City,
-			Postcode: e.Location.Postcode,
+			Address:  e.GetLocation().GetAddress(),
+			City:     e.GetLocation().GetCity(),
+			Postcode: e.GetLocation().GetPostcode(),
 		},
 		Price: &EventPrice{
-			From: e.Price.From,
-			To:   e.Price.To,
+			From: e.GetPrice().GetFrom(),
+			To:   e.GetPrice().GetTo(),
 		},
 	}
 }
