@@ -32,6 +32,27 @@ func NewServiceClient() *ServiceClient {
 	}
 }
 
+func (svc *ServiceClient) Login(c *fiber.Ctx) error {
+	loginData := &models.LoginBody{}
+
+	if err := c.BodyParser(loginData); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": "Invalid data"})
+	}
+
+	request := &pb.LoginRequest{
+		Email:    loginData.Email,
+		Password: loginData.Password,
+	}
+
+	resp, _ := svc.Client.Login(context.TODO(), request)
+
+	if resp.Error {
+		return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+	}
+
+	return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+}
+
 func (svc *ServiceClient) Register(c *fiber.Ctx) error {
 	user := &models.RegisterBody{}
 
@@ -40,7 +61,6 @@ func (svc *ServiceClient) Register(c *fiber.Ctx) error {
 	}
 
 	request := &pb.RegisterRequest{
-		Username:  user.Username,
 		Password:  user.Password,
 		Email:     user.Email,
 		FirstName: user.FirstName,

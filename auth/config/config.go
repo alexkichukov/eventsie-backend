@@ -9,9 +9,11 @@ import (
 )
 
 type Config struct {
-	MONGO_URI  string
-	MONGO_NAME string
-	PORT       int
+	MONGO_URI      string
+	MONGO_NAME     string
+	JWT_SECRET     string
+	JWT_EXPIRES_IN int
+	PORT           int
 }
 
 func GetConfig() *Config {

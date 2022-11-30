@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/joho/godotenv v1.4.0
 	github.com/kamva/mgm/v3 v3.5.0
 	go.mongodb.org/mongo-driver v1.11.0

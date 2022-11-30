@@ -11,11 +11,10 @@ service Auth {
 
 // Register
 message RegisterRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
-  string firstName = 4;
-  string lastName = 5;
+  string email = 1;
+  string password = 2;
+  string firstName = 3;
+  string lastName = 4;
 }
 
 message RegisterResponse {
@@ -26,7 +25,7 @@ message RegisterResponse {
 
 // Login
 message LoginRequest {
-  string username = 1;
+  string email = 1;
   string password = 2;
 }
 

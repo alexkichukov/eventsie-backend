@@ -6,4 +6,5 @@ func RegisterRoutes(app *fiber.App) {
 	svc := NewServiceClient()
 
 	app.Post("/register", svc.Register)
+	app.Post("/login", svc.Login)
 }
