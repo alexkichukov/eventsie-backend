@@ -7,20 +7,20 @@ build:
 	go build -o ./auth/main.exe ./auth/cmd/main.go
 	go build -o ./events/main.exe ./events/cmd/main.go
 
-run-api-gateway:
+run-api:
 	./api/main.exe
 
-run-events-service:
+run-events:
 	./events/main.exe
 
-run-auth-service:
+run-auth:
 	./auth/main.exe
 
-dev-api-gateway:
+dev-api:
 	cd ./api && air
 
-dev-events-service:
+dev-events:
 	cd ./events && air
 
-dev-auth-service:
+dev-auth:
 	cd ./auth && air

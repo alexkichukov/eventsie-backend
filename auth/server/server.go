@@ -4,12 +4,11 @@ import (
 	"context"
 	"net/http"
 
-	"eventsie/auth/config"
 	"eventsie/auth/models"
+	"eventsie/auth/util"
 	pb "eventsie/pb/auth"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -36,21 +35,13 @@ func (s *Server) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginRespo
 	}
 
 	// Create a jwt token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":        user.ID.Hex(),
-		"firstName": user.FirstName,
-		"lastName":  user.LastName,
-		"email":     user.Email,
-	})
-
-	cfg := config.GetConfig()
-	tokenString, err := token.SignedString(cfg.JWT_SECRET)
+	token, err := util.GenerateJWTToken(user.ID.Hex(), user.FirstName, user.LastName, user.Email)
 
 	if err != nil {
 		return &pb.LoginResponse{Status: http.StatusInternalServerError, Error: true, Message: "Could not generate login token"}, nil
 	}
 
-	return &pb.LoginResponse{Status: http.StatusUnauthorized, Token: tokenString}, nil
+	return &pb.LoginResponse{Status: http.StatusOK, Token: token}, nil
 }
 
 func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
@@ -61,6 +52,7 @@ func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regi
 		Password:        in.GetPassword(),
 		Role:            models.UserRole,
 		FavouriteEvents: []string{},
+		AttendingEvents: []string{},
 	}
 
 	// Validate data
@@ -87,5 +79,67 @@ func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regi
 	// Add user to db
 	mgm.Coll(user).Create(user)
 
-	return &pb.RegisterResponse{Status: http.StatusOK, Message: "User registered successfully"}, nil
+	// Create a jwt token
+	token, err := util.GenerateJWTToken(user.ID.Hex(), user.FirstName, user.LastName, user.Email)
+
+	if err != nil {
+		return &pb.RegisterResponse{Status: http.StatusInternalServerError, Error: true, Message: "Could not generate login token"}, nil
+	}
+
+	return &pb.RegisterResponse{Status: http.StatusOK, Token: token}, nil
+}
+
+func (s *Server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+	user := &models.User{}
+
+	if err := mgm.Coll(user).FindByID(in.Id, user); err != nil {
+		return &pb.GetUserResponse{Status: http.StatusInternalServerError, Error: true, Message: "Unexpected error"}, nil
+	}
+
+	// Could not find such user
+	if user.Email == "" {
+		return &pb.GetUserResponse{Status: http.StatusNotFound, Error: true, Message: "No such user exists"}, nil
+	}
+
+	return &pb.GetUserResponse{
+		Status:          http.StatusOK,
+		Id:              user.ID.Hex(),
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Role:            user.Role,
+		FavouriteEvents: user.FavouriteEvents,
+		AttendingEvents: user.AttendingEvents,
+	}, nil
+}
+
+func (s *Server) FavouriteEvent(ctx context.Context, in *pb.FavouriteEventRequest) (*pb.FavouriteEventResponse, error) {
+	user := &models.User{}
+
+	tokenData, err := util.ParseJWTToken(in.Token)
+	if err != nil {
+		return &pb.FavouriteEventResponse{Status: http.StatusUnauthorized, Error: true, Message: "Unauthorized request"}, nil
+	}
+
+	mgm.Coll(user).FindByID(tokenData.ID, user)
+	if user.Email == "" {
+		return &pb.FavouriteEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
+	}
+
+	user.FavouriteEvents = append(user.FavouriteEvents, in.EventId)
+	mgm.Coll(user).Update(user)
+
+	return &pb.FavouriteEventResponse{Status: http.StatusOK, Message: "Event favourited"}, nil
+}
+
+func (s *Server) UnfavouriteEvent(ctx context.Context, in *pb.UnfavouriteEventRequest) (*pb.UnfavouriteEventResponse, error) {
+	return &pb.UnfavouriteEventResponse{}, nil
+}
+
+func (s *Server) AttendEvent(ctx context.Context, in *pb.AttendEventRequest) (*pb.AttendEventResponse, error) {
+	return &pb.AttendEventResponse{}, nil
+}
+
+func (s *Server) UnattendEvent(ctx context.Context, in *pb.UnattendEventRequest) (*pb.UnattendEventResponse, error) {
+	return &pb.UnattendEventResponse{}, nil
 }

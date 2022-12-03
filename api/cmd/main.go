@@ -1,12 +1,12 @@
 package main
 
 import (
-	"eventsie/api/auth"
 	"eventsie/api/config"
-	"eventsie/api/events"
+	"eventsie/api/routes"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -14,10 +14,20 @@ func main() {
 
 	app := fiber.New()
 
-	events.RegisterRoutes(app)
-	auth.RegisterRoutes(app)
+	// Cors
+	app.Use(cors.New(cors.Config{
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
+		AllowOrigins:     "*",
+		AllowCredentials: true,
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
+	}))
 
+	// Routes
+	routes.RegisterRoutes(app)
+
+	// Listen
 	if err := app.Listen(fmt.Sprintf(":%d", cfg.API_PORT)); err != nil {
+		fmt.Println(err)
 		panic("Error while starting up app.")
 	}
 

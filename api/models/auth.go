@@ -11,3 +11,7 @@ type LoginBody struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 }
+
+type FavouriteAttendBody struct {
+	EventID string `json:"eventID"`
+}
