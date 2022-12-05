@@ -17,6 +17,7 @@ func RegisterRoutes(app *fiber.App) {
 	app.Post("/login", auth.Login(svc))
 	app.Post("/register", auth.Register(svc))
 	app.Post("/favouriteEvent", auth.FavouriteEvent(svc))
+	app.Post("/unfavouriteEvent", auth.UnfavouriteEvent(svc))
 
 	// Events
 	app.Get("/events", events.GetEvents(svc))

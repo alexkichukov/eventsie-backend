@@ -17,6 +17,7 @@ type CreateEventBody struct {
 	Description string         `json:"description"`
 	Tags        []string       `json:"tags"`
 	Category    string         `json:"category"`
+	CreatedBy   string         `json:"createdBy"`
 	Location    *EventLocation `json:"location"`
 	Price       *EventPrice    `json:"price"`
 }

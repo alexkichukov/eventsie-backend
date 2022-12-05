@@ -26,9 +26,9 @@ type AuthClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	AttendEvent(ctx context.Context, in *AttendEventRequest, opts ...grpc.CallOption) (*AttendEventResponse, error)
-	UnattendEvent(ctx context.Context, in *UnattendEventRequest, opts ...grpc.CallOption) (*UnattendEventResponse, error)
+	UnattendEvent(ctx context.Context, in *AttendEventRequest, opts ...grpc.CallOption) (*AttendEventResponse, error)
 	FavouriteEvent(ctx context.Context, in *FavouriteEventRequest, opts ...grpc.CallOption) (*FavouriteEventResponse, error)
-	UnfavouriteEvent(ctx context.Context, in *UnfavouriteEventRequest, opts ...grpc.CallOption) (*UnfavouriteEventResponse, error)
+	UnfavouriteEvent(ctx context.Context, in *FavouriteEventRequest, opts ...grpc.CallOption) (*FavouriteEventResponse, error)
 }
 
 type authClient struct {
@@ -75,8 +75,8 @@ func (c *authClient) AttendEvent(ctx context.Context, in *AttendEventRequest, op
 	return out, nil
 }
 
-func (c *authClient) UnattendEvent(ctx context.Context, in *UnattendEventRequest, opts ...grpc.CallOption) (*UnattendEventResponse, error) {
-	out := new(UnattendEventResponse)
+func (c *authClient) UnattendEvent(ctx context.Context, in *AttendEventRequest, opts ...grpc.CallOption) (*AttendEventResponse, error) {
+	out := new(AttendEventResponse)
 	err := c.cc.Invoke(ctx, "/auth.Auth/UnattendEvent", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -93,8 +93,8 @@ func (c *authClient) FavouriteEvent(ctx context.Context, in *FavouriteEventReque
 	return out, nil
 }
 
-func (c *authClient) UnfavouriteEvent(ctx context.Context, in *UnfavouriteEventRequest, opts ...grpc.CallOption) (*UnfavouriteEventResponse, error) {
-	out := new(UnfavouriteEventResponse)
+func (c *authClient) UnfavouriteEvent(ctx context.Context, in *FavouriteEventRequest, opts ...grpc.CallOption) (*FavouriteEventResponse, error) {
+	out := new(FavouriteEventResponse)
 	err := c.cc.Invoke(ctx, "/auth.Auth/UnfavouriteEvent", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -110,9 +110,9 @@ type AuthServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	AttendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error)
-	UnattendEvent(context.Context, *UnattendEventRequest) (*UnattendEventResponse, error)
+	UnattendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error)
 	FavouriteEvent(context.Context, *FavouriteEventRequest) (*FavouriteEventResponse, error)
-	UnfavouriteEvent(context.Context, *UnfavouriteEventRequest) (*UnfavouriteEventResponse, error)
+	UnfavouriteEvent(context.Context, *FavouriteEventRequest) (*FavouriteEventResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -132,13 +132,13 @@ func (UnimplementedAuthServer) Register(context.Context, *RegisterRequest) (*Reg
 func (UnimplementedAuthServer) AttendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AttendEvent not implemented")
 }
-func (UnimplementedAuthServer) UnattendEvent(context.Context, *UnattendEventRequest) (*UnattendEventResponse, error) {
+func (UnimplementedAuthServer) UnattendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnattendEvent not implemented")
 }
 func (UnimplementedAuthServer) FavouriteEvent(context.Context, *FavouriteEventRequest) (*FavouriteEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavouriteEvent not implemented")
 }
-func (UnimplementedAuthServer) UnfavouriteEvent(context.Context, *UnfavouriteEventRequest) (*UnfavouriteEventResponse, error) {
+func (UnimplementedAuthServer) UnfavouriteEvent(context.Context, *FavouriteEventRequest) (*FavouriteEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfavouriteEvent not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
@@ -227,7 +227,7 @@ func _Auth_AttendEvent_Handler(srv interface{}, ctx context.Context, dec func(in
 }
 
 func _Auth_UnattendEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnattendEventRequest)
+	in := new(AttendEventRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func _Auth_UnattendEvent_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/auth.Auth/UnattendEvent",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).UnattendEvent(ctx, req.(*UnattendEventRequest))
+		return srv.(AuthServer).UnattendEvent(ctx, req.(*AttendEventRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -263,7 +263,7 @@ func _Auth_FavouriteEvent_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _Auth_UnfavouriteEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnfavouriteEventRequest)
+	in := new(FavouriteEventRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -275,7 +275,7 @@ func _Auth_UnfavouriteEvent_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/auth.Auth/UnfavouriteEvent",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).UnfavouriteEvent(ctx, req.(*UnfavouriteEventRequest))
+		return srv.(AuthServer).UnfavouriteEvent(ctx, req.(*FavouriteEventRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

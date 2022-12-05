@@ -16,6 +16,7 @@ type Server struct {
 	pb.UnimplementedEventsServer
 }
 
+// Find one event by ID
 func (s *Server) FindOne(ctx context.Context, in *pb.FindOneRequest) (*pb.FindOneResponse, error) {
 	event := &models.Event{}
 
@@ -33,6 +34,7 @@ func (s *Server) FindOne(ctx context.Context, in *pb.FindOneRequest) (*pb.FindOn
 	}, nil
 }
 
+// Find many events
 func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.FindManyResponse, error) {
 	events := []*models.Event{}
 
@@ -56,6 +58,9 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 	if in.PriceTo != nil {
 		filter["price.from"].(bson.M)[operator.Lte] = *in.PriceTo
 	}
+	if in.CreatedBy != nil {
+		filter["createdBy"] = in.CreatedBy
+	}
 
 	if err := mgm.Coll(&models.Event{}).SimpleFind(&events, filter); err != nil {
 		return &pb.FindManyResponse{
@@ -71,6 +76,7 @@ func (s *Server) FindMany(ctx context.Context, in *pb.FindManyRequest) (*pb.Find
 	}, nil
 }
 
+// Create a new event
 func (s *Server) Add(ctx context.Context, in *pb.AddRequest) (*pb.AddResponse, error) {
 	event := models.EventFromProto(in.Event)
 

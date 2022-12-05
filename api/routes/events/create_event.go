@@ -24,6 +24,7 @@ func CreateEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			Description: e.Description,
 			Tags:        e.Tags,
 			Category:    e.Category,
+			CreatedBy:   e.CreatedBy,
 			Location: &pb.Location{
 				Address:  e.Location.GetAddress(),
 				City:     e.Location.GetCity(),

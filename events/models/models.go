@@ -24,6 +24,7 @@ type Event struct {
 	Description      string         `json:"description" bson:"description" validate:"required"`
 	Tags             []string       `json:"tags" bson:"tags" validate:"required,min=1,dive,required,min=2"`
 	Category         string         `json:"category" bson:"category" validate:"required"`
+	CreatedBy        string         `json:"createdBy" bson:"createdBy" validate:"required"`
 	Location         *EventLocation `validate:"required"`
 	Price            *EventPrice    `validate:"required"`
 }
@@ -35,6 +36,7 @@ func EventFromProto(e *pb.Event) *Event {
 		Description: e.GetDescription(),
 		Tags:        e.GetTags(),
 		Category:    e.GetCategory(),
+		CreatedBy:   e.GetCreatedBy(),
 		Location: &EventLocation{
 			Address:  e.GetLocation().GetAddress(),
 			City:     e.GetLocation().GetCity(),
@@ -55,6 +57,7 @@ func EventToProto(e *Event) *pb.Event {
 		Description: e.Description,
 		Tags:        e.Tags,
 		Category:    e.Category,
+		CreatedBy:   e.CreatedBy,
 		Location: &pb.Location{
 			Address:  e.Location.Address,
 			City:     e.Location.City,

@@ -17,21 +17,21 @@ func GetUser(svc *client.Services) func(c *fiber.Ctx) error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
 
-		if resp.FavouriteEvents == nil {
-			resp.FavouriteEvents = []string{}
+		if resp.User.FavouriteEvents == nil {
+			resp.User.FavouriteEvents = []string{}
 		}
-		if resp.AttendingEvents == nil {
-			resp.AttendingEvents = []string{}
+		if resp.User.AttendingEvents == nil {
+			resp.User.AttendingEvents = []string{}
 		}
 
 		return c.Status(int(resp.Status)).JSON(fiber.Map{
-			"id":              resp.Id,
-			"firstName":       resp.FirstName,
-			"lastName":        resp.LastName,
-			"email":           resp.Email,
-			"role":            resp.Role,
-			"favouriteEvents": resp.FavouriteEvents,
-			"attendingEvents": resp.AttendingEvents,
+			"id":              resp.User.Id,
+			"firstName":       resp.User.FirstName,
+			"lastName":        resp.User.LastName,
+			"email":           resp.User.Email,
+			"role":            resp.User.Role,
+			"favouriteEvents": resp.User.FavouriteEvents,
+			"attendingEvents": resp.User.AttendingEvents,
 		})
 	}
 }

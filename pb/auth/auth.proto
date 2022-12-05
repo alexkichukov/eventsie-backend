@@ -9,9 +9,19 @@ service Auth {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc AttendEvent(AttendEventRequest) returns (AttendEventResponse) {}
-  rpc UnattendEvent(UnattendEventRequest) returns (UnattendEventResponse) {}
+  rpc UnattendEvent(AttendEventRequest) returns (AttendEventResponse) {}
   rpc FavouriteEvent(FavouriteEventRequest) returns (FavouriteEventResponse) {}
-  rpc UnfavouriteEvent(UnfavouriteEventRequest) returns (UnfavouriteEventResponse) {}
+  rpc UnfavouriteEvent(FavouriteEventRequest) returns (FavouriteEventResponse) {}
+}
+
+message User {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string role = 5;
+  repeated string favouriteEvents = 6;
+  repeated string attendingEvents = 7;
 }
 
 // Register
@@ -27,6 +37,7 @@ message RegisterResponse {
   string message = 2;
   bool error = 3;
   string token = 4;
+  User user = 5;
 }
 
 // Login
@@ -40,6 +51,7 @@ message LoginResponse {
   string message = 2;
   bool error = 3;
   string token = 4;
+  User user = 5;
 }
 
 // Get User
@@ -51,22 +63,11 @@ message GetUserResponse {
   int32 status = 1;
   bool error = 2;
   string message = 3;
-  string id = 4;
-  string firstName = 5;
-  string lastName = 6;
-  string email = 7;
-  string role = 8;
-  repeated string favouriteEvents = 9;
-  repeated string attendingEvents = 10;
+  User user = 4;
 }
 
 // Favourite and unfavourite event
 message FavouriteEventRequest {
-  string eventId = 1;
-  string token = 2;
-}
-
-message UnfavouriteEventRequest {
   string eventID = 1;
   string token = 2;
 }
@@ -75,12 +76,7 @@ message FavouriteEventResponse {
   int32 status = 1;
   string message = 2;
   bool error = 3;
-}
-
-message UnfavouriteEventResponse {
-  int32 status = 1;
-  string message = 2;
-  bool error = 3;
+  repeated string favouriteEvents = 4;
 }
 
 // Attend and unattend event
@@ -89,19 +85,9 @@ message AttendEventRequest {
   string token = 2;
 }
 
-message UnattendEventRequest {
-  string eventID = 1;
-  string token = 2;
-}
-
 message AttendEventResponse {
   int32 status = 1;
   string message = 2;
   bool error = 3;
-}
-
-message UnattendEventResponse {
-  int32 status = 1;
-  string message = 2;
-  bool error = 3;
+  repeated string attendingEvents = 4;
 }

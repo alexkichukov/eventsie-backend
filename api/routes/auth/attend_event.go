@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func FavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
+func AttendEvent(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		body := &models.FavouriteAttendBody{}
 
@@ -23,11 +23,11 @@ func FavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		// Make sure the event exists
 		eventResp, _ := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
 		if eventResp.Error {
-			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not favourite event"})
+			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not  event"})
 		}
 
 		// Add event to favourites
-		resp, _ := svc.Auth.FavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
+		resp, _ := svc.Auth.AttendEvent(context.TODO(), &authPb.AttendEventRequest{
 			EventID: body.EventID,
 			Token:   strings.TrimPrefix(c.Get("Authorization"), "Bearer "),
 		})
@@ -36,15 +36,15 @@ func FavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
 
-		if resp.FavouriteEvents == nil {
-			resp.FavouriteEvents = []string{}
+		if resp.AttendingEvents == nil {
+			resp.AttendingEvents = []string{}
 		}
 
-		return c.Status(int(resp.Status)).JSON(fiber.Map{"favouriteEvents": resp.FavouriteEvents})
+		return c.Status(int(resp.Status)).JSON(fiber.Map{"attendingEvents": resp.AttendingEvents})
 	}
 }
 
-func UnfavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
+func UnattendEvent(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		body := &models.FavouriteAttendBody{}
 
@@ -59,7 +59,7 @@ func UnfavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		}
 
 		// Add event to favourites
-		resp, _ := svc.Auth.UnfavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
+		resp, _ := svc.Auth.UnattendEvent(context.TODO(), &authPb.AttendEventRequest{
 			EventID: body.EventID,
 			Token:   strings.TrimPrefix(c.Get("Authorization"), "Bearer "),
 		})
@@ -68,10 +68,10 @@ func UnfavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
 
-		if resp.FavouriteEvents == nil {
-			resp.FavouriteEvents = []string{}
+		if resp.AttendingEvents == nil {
+			resp.AttendingEvents = []string{}
 		}
 
-		return c.Status(int(resp.Status)).JSON(fiber.Map{"favouriteEvents": resp.FavouriteEvents})
+		return c.Status(int(resp.Status)).JSON(fiber.Map{"favouriteEvents": resp.AttendingEvents})
 	}
 }

@@ -31,6 +31,7 @@ message Event {
   repeated string tags = 6;
   string category = 7;
   Price price = 8;
+  string createdBy = 9;
 }
 
 // Find One
@@ -52,6 +53,7 @@ message FindManyRequest {
   repeated string tags = 3;
   optional double priceFrom = 4;
   optional double priceTo = 5;
+  optional string createdBy = 6;
 }
 
 message FindManyResponse {

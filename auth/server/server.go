@@ -41,7 +41,15 @@ func (s *Server) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginRespo
 		return &pb.LoginResponse{Status: http.StatusInternalServerError, Error: true, Message: "Could not generate login token"}, nil
 	}
 
-	return &pb.LoginResponse{Status: http.StatusOK, Token: token}, nil
+	return &pb.LoginResponse{Status: http.StatusOK, Token: token, User: &pb.User{
+		Id:              user.ID.Hex(),
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Role:            user.Role,
+		FavouriteEvents: user.FavouriteEvents,
+		AttendingEvents: user.AttendingEvents,
+	}}, nil
 }
 
 func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
@@ -86,7 +94,15 @@ func (s *Server) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Regi
 		return &pb.RegisterResponse{Status: http.StatusInternalServerError, Error: true, Message: "Could not generate login token"}, nil
 	}
 
-	return &pb.RegisterResponse{Status: http.StatusOK, Token: token}, nil
+	return &pb.RegisterResponse{Status: http.StatusOK, Token: token, User: &pb.User{
+		Id:              user.ID.Hex(),
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Role:            user.Role,
+		FavouriteEvents: user.FavouriteEvents,
+		AttendingEvents: user.AttendingEvents,
+	}}, nil
 }
 
 func (s *Server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
@@ -102,14 +118,16 @@ func (s *Server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUse
 	}
 
 	return &pb.GetUserResponse{
-		Status:          http.StatusOK,
-		Id:              user.ID.Hex(),
-		FirstName:       user.FirstName,
-		LastName:        user.LastName,
-		Email:           user.Email,
-		Role:            user.Role,
-		FavouriteEvents: user.FavouriteEvents,
-		AttendingEvents: user.AttendingEvents,
+		Status: http.StatusOK,
+		User: &pb.User{
+			Id:              user.ID.Hex(),
+			FirstName:       user.FirstName,
+			LastName:        user.LastName,
+			Email:           user.Email,
+			Role:            user.Role,
+			FavouriteEvents: user.FavouriteEvents,
+			AttendingEvents: user.AttendingEvents,
+		},
 	}, nil
 }
 
@@ -126,20 +144,81 @@ func (s *Server) FavouriteEvent(ctx context.Context, in *pb.FavouriteEventReques
 		return &pb.FavouriteEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
 	}
 
-	user.FavouriteEvents = append(user.FavouriteEvents, in.EventId)
+	user.FavouriteEvents = append(user.FavouriteEvents, in.EventID)
 	mgm.Coll(user).Update(user)
 
-	return &pb.FavouriteEventResponse{Status: http.StatusOK, Message: "Event favourited"}, nil
+	return &pb.FavouriteEventResponse{Status: http.StatusOK, FavouriteEvents: user.FavouriteEvents}, nil
 }
 
-func (s *Server) UnfavouriteEvent(ctx context.Context, in *pb.UnfavouriteEventRequest) (*pb.UnfavouriteEventResponse, error) {
-	return &pb.UnfavouriteEventResponse{}, nil
+func (s *Server) UnfavouriteEvent(ctx context.Context, in *pb.FavouriteEventRequest) (*pb.FavouriteEventResponse, error) {
+	user := &models.User{}
+
+	tokenData, err := util.ParseJWTToken(in.Token)
+	if err != nil {
+		return &pb.FavouriteEventResponse{Status: http.StatusUnauthorized, Error: true, Message: "Unauthorized request"}, nil
+	}
+
+	mgm.Coll(user).FindByID(tokenData.ID, user)
+	if user.Email == "" {
+		return &pb.FavouriteEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
+	}
+
+	// Remove event from slice
+	for i, event := range user.FavouriteEvents {
+		if event == in.EventID {
+			user.FavouriteEvents = append(user.FavouriteEvents[:i], user.FavouriteEvents[i+1:]...)
+			break
+		}
+	}
+
+	// Save changes
+	mgm.Coll(user).Update(user)
+
+	return &pb.FavouriteEventResponse{Status: http.StatusOK, FavouriteEvents: user.FavouriteEvents}, nil
 }
 
 func (s *Server) AttendEvent(ctx context.Context, in *pb.AttendEventRequest) (*pb.AttendEventResponse, error) {
-	return &pb.AttendEventResponse{}, nil
+	user := &models.User{}
+
+	tokenData, err := util.ParseJWTToken(in.Token)
+	if err != nil {
+		return &pb.AttendEventResponse{Status: http.StatusUnauthorized, Error: true, Message: "Unauthorized request"}, nil
+	}
+
+	mgm.Coll(user).FindByID(tokenData.ID, user)
+	if user.Email == "" {
+		return &pb.AttendEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
+	}
+
+	user.FavouriteEvents = append(user.FavouriteEvents, in.EventID)
+	mgm.Coll(user).Update(user)
+
+	return &pb.AttendEventResponse{Status: http.StatusOK, AttendingEvents: user.AttendingEvents}, nil
 }
 
-func (s *Server) UnattendEvent(ctx context.Context, in *pb.UnattendEventRequest) (*pb.UnattendEventResponse, error) {
-	return &pb.UnattendEventResponse{}, nil
+func (s *Server) UnattendEvent(ctx context.Context, in *pb.AttendEventRequest) (*pb.AttendEventResponse, error) {
+	user := &models.User{}
+
+	tokenData, err := util.ParseJWTToken(in.Token)
+	if err != nil {
+		return &pb.AttendEventResponse{Status: http.StatusUnauthorized, Error: true, Message: "Unauthorized request"}, nil
+	}
+
+	mgm.Coll(user).FindByID(tokenData.ID, user)
+	if user.Email == "" {
+		return &pb.AttendEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
+	}
+
+	// Remove event from slice
+	for i, event := range user.FavouriteEvents {
+		if event == in.EventID {
+			user.FavouriteEvents = append(user.FavouriteEvents[:i], user.FavouriteEvents[i+1:]...)
+			break
+		}
+	}
+
+	// Save changes
+	mgm.Coll(user).Update(user)
+
+	return &pb.AttendEventResponse{Status: http.StatusOK, AttendingEvents: user.AttendingEvents}, nil
 }
