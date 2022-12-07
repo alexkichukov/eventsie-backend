@@ -2,6 +2,7 @@ package routes
 
 import (
 	"eventsie/api/client"
+	"eventsie/api/middleware"
 	"eventsie/api/routes/auth"
 	"eventsie/api/routes/events"
 
@@ -22,5 +23,6 @@ func RegisterRoutes(app *fiber.App) {
 	// Events
 	app.Get("/events", events.GetEvents(svc))
 	app.Get("/events/:id", events.GetEvent(svc))
-	app.Post("/new-event", events.CreateEvent(svc))
+	app.Get("/categories", events.GetCategories(svc))
+	app.Post("/newEvent", middleware.AuthGuard(svc), events.CreateEvent(svc))
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type EventPrice struct {
-	From float64 `json:"from" bson:"from" validate:"required,gte=0"`
+	From float64 `json:"from" bson:"from" validate:"omitempty,gte=0"`
 	To   float64 `json:"to" bson:"to" validate:"omitempty,gtfield=From"`
 }
 
@@ -23,7 +23,7 @@ type Event struct {
 	Date             string         `json:"date" bson:"date" validate:"required"`
 	Description      string         `json:"description" bson:"description" validate:"required"`
 	Tags             []string       `json:"tags" bson:"tags" validate:"required,min=1,dive,required,min=2"`
-	Category         string         `json:"category" bson:"category" validate:"required"`
+	Category         string         `json:"category" bson:"category" validate:"required,oneof=music health sports hobbies tech food-and-drink"`
 	CreatedBy        string         `json:"createdBy" bson:"createdBy" validate:"required"`
 	Location         *EventLocation `validate:"required"`
 	Price            *EventPrice    `validate:"required"`

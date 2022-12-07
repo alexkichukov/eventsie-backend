@@ -25,6 +25,7 @@ type AuthClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error)
 	AttendEvent(ctx context.Context, in *AttendEventRequest, opts ...grpc.CallOption) (*AttendEventResponse, error)
 	UnattendEvent(ctx context.Context, in *AttendEventRequest, opts ...grpc.CallOption) (*AttendEventResponse, error)
 	FavouriteEvent(ctx context.Context, in *FavouriteEventRequest, opts ...grpc.CallOption) (*FavouriteEventResponse, error)
@@ -60,6 +61,15 @@ func (c *authClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...gr
 func (c *authClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	out := new(RegisterResponse)
 	err := c.cc.Invoke(ctx, "/auth.Auth/Register", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error) {
+	out := new(ValidateResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/ValidateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +119,7 @@ type AuthServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error)
 	AttendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error)
 	UnattendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error)
 	FavouriteEvent(context.Context, *FavouriteEventRequest) (*FavouriteEventResponse, error)
@@ -128,6 +139,9 @@ func (UnimplementedAuthServer) GetUser(context.Context, *GetUserRequest) (*GetUs
 }
 func (UnimplementedAuthServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedAuthServer) ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 func (UnimplementedAuthServer) AttendEvent(context.Context, *AttendEventRequest) (*AttendEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AttendEvent not implemented")
@@ -204,6 +218,24 @@ func _Auth_Register_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServer).Register(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).ValidateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Auth/ValidateToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).ValidateToken(ctx, req.(*ValidateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -298,6 +330,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _Auth_Register_Handler,
+		},
+		{
+			MethodName: "ValidateToken",
+			Handler:    _Auth_ValidateToken_Handler,
 		},
 		{
 			MethodName: "AttendEvent",

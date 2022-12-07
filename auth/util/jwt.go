@@ -42,7 +42,7 @@ func ParseJWTToken(tokenString string) (*JWTData, error) {
 		return []byte(cfg.JWT_SECRET), nil
 	})
 
-	if err != nil || !token.Valid {
+	if err != nil {
 		return nil, err
 	}
 

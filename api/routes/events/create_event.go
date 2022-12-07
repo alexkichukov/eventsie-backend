@@ -36,8 +36,8 @@ func CreateEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			},
 		}
 
-		svc.Events.Add(context.TODO(), &pb.AddRequest{Event: event})
+		resp, _ := svc.Events.Add(context.TODO(), &pb.AddRequest{Event: event})
 
-		return c.Status(http.StatusOK).JSON(fiber.Map{"message": "Event created successfully"})
+		return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 	}
 }

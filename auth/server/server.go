@@ -140,6 +140,7 @@ func (s *Server) FavouriteEvent(ctx context.Context, in *pb.FavouriteEventReques
 	}
 
 	mgm.Coll(user).FindByID(tokenData.ID, user)
+
 	if user.Email == "" {
 		return &pb.FavouriteEventResponse{Status: http.StatusBadRequest, Error: true, Message: "Could not favourite event"}, nil
 	}

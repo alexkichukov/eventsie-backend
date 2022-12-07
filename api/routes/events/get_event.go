@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"eventsie/api/client"
+	authPb "eventsie/pb/auth"
 	pb "eventsie/pb/events"
 	"fmt"
 	"net/http"
@@ -26,6 +27,33 @@ func GetEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			})
 		}
 
-		return c.Status(int(resp.Status)).JSON(resp.Event)
+		// Find the user who created the event
+		authResp, _ := svc.Auth.GetUser(context.TODO(), &authPb.GetUserRequest{Id: resp.Event.CreatedBy})
+		if resp.Error {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Unexpected error"})
+		}
+
+		return c.Status(int(resp.Status)).JSON(fiber.Map{
+			"id":          resp.Event.Id,
+			"date":        resp.Event.Date,
+			"title":       resp.Event.Title,
+			"description": resp.Event.Description,
+			"category":    resp.Event.Category,
+			"tags":        resp.Event.Tags,
+			"location": &fiber.Map{
+				"address":  resp.Event.Location.Address,
+				"city":     resp.Event.Location.City,
+				"postcode": resp.Event.Location.Postcode,
+			},
+			"price": &fiber.Map{
+				"from": resp.Event.Price.From,
+				"to":   resp.Event.Price.To,
+			},
+			"createdBy": &fiber.Map{
+				"id":        authResp.User.Id,
+				"firstName": authResp.User.FirstName,
+				"lastName":  authResp.User.LastName,
+			},
+		})
 	}
 }

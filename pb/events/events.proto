@@ -8,6 +8,7 @@ service Events {
   rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
   rpc FindMany(FindManyRequest) returns (FindManyResponse) {}
   rpc Add(AddRequest) returns (AddResponse) {}
+  rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse) {}
 }
 
 // Event
@@ -51,9 +52,10 @@ message FindManyRequest {
   repeated string categories = 1;
   repeated string cities = 2;
   repeated string tags = 3;
-  optional double priceFrom = 4;
-  optional double priceTo = 5;
-  optional string createdBy = 6;
+  repeated string createdBy = 4;
+  repeated string id = 5;
+  optional double priceFrom = 6;
+  optional double priceTo = 7;
 }
 
 message FindManyResponse {
@@ -63,6 +65,7 @@ message FindManyResponse {
   repeated Event events = 4;
 }
 
+// Add event
 message AddRequest {
   Event event = 1;
 }
@@ -71,4 +74,16 @@ message AddResponse {
   int32 status = 1;
   string message = 2;
   bool error = 3;
+}
+
+// Get event categories
+message Category {
+  string id = 1;
+  string name = 2;
+}
+
+message GetCategoriesRequest {}
+
+message GetCategoriesResponse {
+  repeated Category categories = 1;
 }

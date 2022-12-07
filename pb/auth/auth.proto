@@ -8,6 +8,7 @@ service Auth {
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc ValidateToken(ValidateRequest) returns (ValidateResponse) {}
   rpc AttendEvent(AttendEventRequest) returns (AttendEventResponse) {}
   rpc UnattendEvent(AttendEventRequest) returns (AttendEventResponse) {}
   rpc FavouriteEvent(FavouriteEventRequest) returns (FavouriteEventResponse) {}
@@ -90,4 +91,17 @@ message AttendEventResponse {
   string message = 2;
   bool error = 3;
   repeated string attendingEvents = 4;
+}
+
+// Validate token
+message ValidateRequest {
+  string token = 1;
+}
+
+message ValidateResponse {
+  bool valid = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string email = 4;
+  string id = 5;
 }
