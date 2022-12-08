@@ -8,6 +8,8 @@ service Events {
   rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
   rpc FindMany(FindManyRequest) returns (FindManyResponse) {}
   rpc Add(AddRequest) returns (AddResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
   rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse) {}
 }
 
@@ -35,7 +37,6 @@ message Event {
   string createdBy = 9;
 }
 
-// Find One
 message FindOneRequest {
   string id = 1;
 }
@@ -74,6 +75,33 @@ message AddResponse {
   int32 status = 1;
   string message = 2;
   bool error = 3;
+}
+
+// Update event
+message UpdateRequest {
+  Event event = 1;
+  string eventID = 2;
+  string userID = 3;
+  string userRole = 4;
+}
+
+message UpdateResponse {
+  int32 status = 1;
+  string message = 2;
+  bool error = 3;
+}
+
+// Delete event
+message DeleteRequest {
+  string eventID = 1;
+  string userID = 2;
+  string userRole = 3;
+}
+
+message DeleteResponse {
+  int32 status = 1;
+  bool error = 2;
+  string message = 3;
 }
 
 // Get event categories

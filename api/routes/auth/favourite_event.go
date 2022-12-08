@@ -21,19 +21,24 @@ func FavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		}
 
 		// Make sure the event exists
-		eventResp, _ := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
+		eventResp, err := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
 		if eventResp.Error {
 			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not favourite event"})
 		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
+		}
 
 		// Add event to favourites
-		resp, _ := svc.Auth.FavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
+		resp, err := svc.Auth.FavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
 			EventID: body.EventID,
 			Token:   strings.TrimPrefix(c.Get("Authorization"), "Bearer "),
 		})
-
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
 		}
 
 		if resp.FavouriteEvents == nil {
@@ -53,19 +58,24 @@ func UnfavouriteEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		}
 
 		// Make sure the event exists
-		eventResp, _ := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
+		eventResp, err := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
 		if eventResp.Error {
 			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not favourite event"})
 		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
+		}
 
 		// Add event to favourites
-		resp, _ := svc.Auth.UnfavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
+		resp, err := svc.Auth.UnfavouriteEvent(context.TODO(), &authPb.FavouriteEventRequest{
 			EventID: body.EventID,
 			Token:   strings.TrimPrefix(c.Get("Authorization"), "Bearer "),
 		})
-
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
 		}
 
 		if resp.FavouriteEvents == nil {

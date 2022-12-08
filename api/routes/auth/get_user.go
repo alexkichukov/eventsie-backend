@@ -4,6 +4,7 @@ import (
 	"context"
 	"eventsie/api/client"
 	pb "eventsie/pb/auth"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,9 +13,12 @@ func GetUser(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
 
-		resp, _ := svc.Auth.GetUser(context.TODO(), &pb.GetUserRequest{Id: id})
+		resp, err := svc.Auth.GetUser(context.TODO(), &pb.GetUserRequest{Id: id})
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
 		}
 
 		if resp.User.FavouriteEvents == nil {

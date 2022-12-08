@@ -19,10 +19,14 @@ func RegisterRoutes(app *fiber.App) {
 	app.Post("/register", auth.Register(svc))
 	app.Post("/favouriteEvent", auth.FavouriteEvent(svc))
 	app.Post("/unfavouriteEvent", auth.UnfavouriteEvent(svc))
+	app.Post("/attendEvent", auth.AttendEvent(svc))
+	app.Post("/unattendEvent", auth.UnattendEvent(svc))
 
 	// Events
 	app.Get("/events", events.GetEvents(svc))
 	app.Get("/events/:id", events.GetEvent(svc))
 	app.Get("/categories", events.GetCategories(svc))
 	app.Post("/newEvent", middleware.AuthGuard(svc), events.CreateEvent(svc))
+	app.Post("/deleteEvent", middleware.AuthGuard(svc), events.DeleteEvent(svc))
+	app.Post("/updateEvent", middleware.AuthGuard(svc), events.UpdateEvent(svc))
 }

@@ -21,5 +21,6 @@ func (s *Server) ValidateToken(ctx context.Context, in *pb.ValidateRequest) (*pb
 		LastName:  parsed.LastName,
 		Email:     parsed.Email,
 		Id:        parsed.ID,
+		Role:      parsed.Role,
 	}, nil
 }

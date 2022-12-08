@@ -15,3 +15,11 @@ type LoginBody struct {
 type FavouriteAttendBody struct {
 	EventID string `json:"eventID"`
 }
+
+type User struct {
+	Id        string
+	Email     string
+	FirstName string
+	LastName  string
+	Role      string
+}

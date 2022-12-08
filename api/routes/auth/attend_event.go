@@ -23,7 +23,7 @@ func AttendEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		// Make sure the event exists
 		eventResp, _ := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
 		if eventResp.Error {
-			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not  event"})
+			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not add event to attending"})
 		}
 
 		// Add event to favourites
@@ -53,16 +53,24 @@ func UnattendEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		}
 
 		// Make sure the event exists
-		eventResp, _ := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
+		eventResp, err := svc.Events.FindOne(context.TODO(), &eventsPb.FindOneRequest{Id: body.EventID})
 		if eventResp.Error {
-			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not favourite event"})
+			return c.Status(int(eventResp.Status)).JSON(fiber.Map{"message": "Could not remove event from attending"})
+		}
+
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
 		}
 
 		// Add event to favourites
-		resp, _ := svc.Auth.UnattendEvent(context.TODO(), &authPb.AttendEventRequest{
+		resp, err := svc.Auth.UnattendEvent(context.TODO(), &authPb.AttendEventRequest{
 			EventID: body.EventID,
 			Token:   strings.TrimPrefix(c.Get("Authorization"), "Bearer "),
 		})
+
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
+		}
 
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
@@ -72,6 +80,6 @@ func UnattendEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			resp.AttendingEvents = []string{}
 		}
 
-		return c.Status(int(resp.Status)).JSON(fiber.Map{"favouriteEvents": resp.AttendingEvents})
+		return c.Status(int(resp.Status)).JSON(fiber.Map{"attendingEvents": resp.AttendingEvents})
 	}
 }

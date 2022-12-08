@@ -22,6 +22,21 @@ type CreateEventBody struct {
 	Price       *EventPrice    `json:"price"`
 }
 
+type UpdateEventBody struct {
+	Id          string         `json:"id"`
+	Title       string         `json:"title"`
+	Date        string         `json:"date"`
+	Description string         `json:"description"`
+	Tags        []string       `json:"tags"`
+	Category    string         `json:"category"`
+	Location    *EventLocation `json:"location"`
+	Price       *EventPrice    `json:"price"`
+}
+
+type DeleteEventBody struct {
+	Id string `json:"id"`
+}
+
 func (el *EventLocation) GetAddress() string {
 	if el == nil {
 		return ""

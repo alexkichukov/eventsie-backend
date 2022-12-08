@@ -104,4 +104,5 @@ message ValidateResponse {
   string lastName = 3;
   string email = 4;
   string id = 5;
+  string role = 6;
 }

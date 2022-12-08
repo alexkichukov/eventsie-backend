@@ -13,15 +13,17 @@ type JWTData struct {
 	FirstName string
 	LastName  string
 	Email     string
+	Role      string
 }
 
-func GenerateJWTToken(id string, firstName string, lastName string, email string) (string, error) {
+func GenerateJWTToken(id string, firstName string, lastName string, email string, role string) (string, error) {
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":        id,
 		"firstName": firstName,
 		"lastName":  lastName,
 		"email":     email,
+		"role":      role,
 	})
 
 	cfg := config.GetConfig()
@@ -52,6 +54,7 @@ func ParseJWTToken(tokenString string) (*JWTData, error) {
 			FirstName: claims["firstName"].(string),
 			LastName:  claims["lastName"].(string),
 			Email:     claims["email"].(string),
+			Role:      claims["role"].(string),
 		}, nil
 	} else {
 		return nil, fmt.Errorf("could not verify token")

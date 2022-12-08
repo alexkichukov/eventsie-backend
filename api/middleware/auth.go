@@ -20,11 +20,12 @@ func AuthGuard(svc *client.Services) func(c *fiber.Ctx) error {
 
 		// Add decoded information to locals
 		if resp.Valid {
-			c.Locals("user", &fiber.Map{
-				"id":        resp.Id,
-				"firstName": resp.FirstName,
-				"lastName":  resp.LastName,
-				"email":     resp.Email,
+			c.Locals("user", fiber.Map{
+				"Id":        resp.Id,
+				"FirstName": resp.FirstName,
+				"LastName":  resp.LastName,
+				"Email":     resp.Email,
+				"Role":      resp.Role,
 			})
 			return c.Next()
 		}

@@ -23,7 +23,10 @@ func Login(svc *client.Services) func(c *fiber.Ctx) error {
 			Password: loginData.Password,
 		}
 
-		resp, _ := svc.Auth.Login(context.TODO(), request)
+		resp, err := svc.Auth.Login(context.TODO(), request)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
+		}
 
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})

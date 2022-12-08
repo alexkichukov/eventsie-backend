@@ -26,7 +26,7 @@ func GetEvents(svc *client.Services) func(c *fiber.Ctx) error {
 
 		// Parse the filter parameters
 		if len(id) > 0 {
-			c := strings.Split(category, ",")
+			c := strings.Split(id, ",")
 			request.Id = c
 		}
 		if len(category) > 0 {
@@ -58,16 +58,17 @@ func GetEvents(svc *client.Services) func(c *fiber.Ctx) error {
 			}
 		}
 
-		resp, _ := svc.Events.FindMany(context.TODO(), request)
-
-		// There is an error
+		resp, err := svc.Events.FindMany(context.TODO(), request)
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
+		}
 
-		// There was no event found
+		// There was no events found
 		if resp.Events == nil {
-			return c.Status(http.StatusNotFound).JSON(fiber.Map{"message": "No events found"})
+			return c.Status(http.StatusOK).JSON([]fiber.Map{})
 		}
 
 		// Fiber map to be returned as json
@@ -75,9 +76,13 @@ func GetEvents(svc *client.Services) func(c *fiber.Ctx) error {
 
 		// Get event creators info
 		for i, event := range resp.Events {
-			resp, _ := svc.Auth.GetUser(context.TODO(), &authPb.GetUserRequest{Id: event.CreatedBy})
+			resp, err := svc.Auth.GetUser(context.TODO(), &authPb.GetUserRequest{Id: event.CreatedBy})
 			if resp.Error {
-				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Unexpected error"})
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": resp.Message})
+			}
+
+			if err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
 			}
 
 			m[i] = &fiber.Map{

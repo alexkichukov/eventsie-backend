@@ -25,10 +25,12 @@ func Register(svc *client.Services) func(c *fiber.Ctx) error {
 			LastName:  user.LastName,
 		}
 
-		resp, _ := svc.Auth.Register(context.TODO(), request)
-
+		resp, err := svc.Auth.Register(context.TODO(), request)
 		if resp.Error {
 			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
+		}
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
 		}
 
 		if resp.User.FavouriteEvents == nil {

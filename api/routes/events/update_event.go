@@ -10,21 +10,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateEvent(svc *client.Services) func(c *fiber.Ctx) error {
+func UpdateEvent(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		e := &models.CreateEventBody{}
+		e := &models.UpdateEventBody{}
 
 		if err := c.BodyParser(e); err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": "Invalid event data"})
 		}
 
+		user := c.Locals("user").(fiber.Map)
+
 		event := &pb.Event{
+			Id:          e.Id,
 			Title:       e.Title,
 			Date:        e.Date,
 			Description: e.Description,
 			Tags:        e.Tags,
 			Category:    e.Category,
-			CreatedBy:   e.CreatedBy,
+			CreatedBy:   user["Id"].(string),
 			Location: &pb.Location{
 				Address:  e.Location.GetAddress(),
 				City:     e.Location.GetCity(),
@@ -36,7 +39,12 @@ func CreateEvent(svc *client.Services) func(c *fiber.Ctx) error {
 			},
 		}
 
-		resp, err := svc.Events.Add(context.TODO(), &pb.AddRequest{Event: event})
+		resp, err := svc.Events.Update(context.TODO(), &pb.UpdateRequest{
+			Event:    event,
+			EventID:  e.Id,
+			UserID:   user["Id"].(string),
+			UserRole: user["Role"].(string),
+		})
 
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
