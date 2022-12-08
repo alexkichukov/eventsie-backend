@@ -14,11 +14,11 @@ func GetUser(svc *client.Services) func(c *fiber.Ctx) error {
 		id := c.Params("id")
 
 		resp, err := svc.Auth.GetUser(context.TODO(), &pb.GetUserRequest{Id: id})
-		if resp.Error {
-			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
-		}
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
+		}
+		if resp.Error {
+			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
 
 		if resp.User.FavouriteEvents == nil {

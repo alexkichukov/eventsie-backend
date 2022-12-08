@@ -14,13 +14,11 @@ import (
 func GetEvent(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		resp, err := svc.Events.FindOne(context.TODO(), &pb.FindOneRequest{Id: c.Params("id")})
-
-		if resp.Error {
-			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
-		}
-
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
+		}
+		if resp.Error {
+			return c.Status(int(resp.Status)).JSON(fiber.Map{"message": resp.Message})
 		}
 
 		// There was no event found
@@ -32,12 +30,11 @@ func GetEvent(svc *client.Services) func(c *fiber.Ctx) error {
 
 		// Find the user who created the event
 		authResp, err := svc.Auth.GetUser(context.TODO(), &authPb.GetUserRequest{Id: resp.Event.CreatedBy})
-		if resp.Error {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Unexpected error"})
-		}
-
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
+		}
+		if resp.Error {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Unexpected error"})
 		}
 
 		return c.Status(int(resp.Status)).JSON(fiber.Map{
