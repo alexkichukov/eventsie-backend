@@ -37,7 +37,6 @@ func CreateEvent(svc *client.Services) func(c *fiber.Ctx) error {
 		}
 
 		resp, err := svc.Events.Add(context.TODO(), &pb.AddRequest{Event: event})
-
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to events service"})
 		}

@@ -16,7 +16,10 @@ func AuthGuard(svc *client.Services) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		token := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
 
-		resp, _ := svc.Auth.ValidateToken(context.TODO(), &pb.ValidateRequest{Token: token})
+		resp, err := svc.Auth.ValidateToken(context.TODO(), &pb.ValidateRequest{Token: token})
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"message": "Could not connect to auth service"})
+		}
 
 		// Add decoded information to locals
 		if resp.Valid {
